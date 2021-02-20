@@ -13,8 +13,8 @@ matrix:
       - TARGET=armv7-unknown-linux-gnueabihf
       - LINKER=arm-linux-gnueabihf-gcc
       - PACKAGE=$NAME-rpi3.tar.gz
-      - CC=arm-linux-gnueabihf-gcc
-      - SETARCH="setarch linux32 --verbose --32bit"
+      - OPENSSL_LIB_DIR=/usr/include/openssl
+      - OPENSSL_INCLUDE_DIR=/usr/lib/arm-linux-gnueabihf
       before_install:
         - sudo dpkg --add-architecture armhf
         - echo "deb http://ports.ubuntu.com/ubuntu-ports xenial main" | sudo tee -a /etc/apt/sources.list
