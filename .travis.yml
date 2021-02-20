@@ -18,10 +18,15 @@ matrix:
             - gcc-arm-linux-gnueabihf
             - libc6-armhf-cross
             - libc6-dev-armhf-cross
+            - libssl-dev
     - env:
       - NAME=telegram-bot-template
       - TARGET=x86_64-unknown-linux-gnu
       - PACKAGE=$NAME-x86_64.tar.gz
+      addons:
+        apt:
+          packages:
+            - libssl-dev
 
 install:
   - export PATH="$PATH:$HOME/.cargo/bin"
