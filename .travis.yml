@@ -24,7 +24,8 @@ matrix:
             crossbuild-essential-armhf \
             libc6:armhf \
             libc6-dev:armhf \
-            libssl-dev:armhf
+            libssl-dev:armhf \
+            pkg-config-arm-linux-gnueabihf
     - env:
       - NAME=telegram-bot-template
       - TARGET=x86_64-unknown-linux-gnu
