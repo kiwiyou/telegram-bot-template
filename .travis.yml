@@ -13,8 +13,6 @@ matrix:
       - TARGET=armv7-unknown-linux-gnueabihf
       - LINKER=arm-linux-gnueabihf-gcc
       - PACKAGE=$NAME-rpi3.tar.gz
-      - ARMV7_UNKNOWN_LINUX_GNUEABIHF_OPENSSL_LIB_DIR=/usr/lib/arm-linux-gnueabihf
-      - ARMV7_UNKNOWN_LINUX_GNUEABIHF_OPENSSL_INCLUDE_DIR=/usr/include/arm-linux-gnueabihf/opensslenv
       - CC=arm-linux-gnueabihf-gcc
       - SETARCH="setarch linux32 --verbose --32bit"
       before_install:
