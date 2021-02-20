@@ -12,13 +12,15 @@ matrix:
       - TARGET=armv7-unknown-linux-gnueabihf
       - LINKER=arm-linux-gnueabihf-gcc
       - PACKAGE=$NAME-rpi3.tar.gz
+      - ARMV7_UNKNOWN_LINUX_GNUEABIHF_OPENSSL_LIB_DIR=/usr/lib/arm-linux-gnueabihf
+      - ARMV7_UNKNOWN_LINUX_GNUEABIHF_OPENSSL_INCLUDE_DIR=/usr/include/arm-linux-gnueabihf/openssl
       addons:
         apt:
           packages:
             - gcc-arm-linux-gnueabihf
             - libc6-armhf-cross
             - libc6-dev-armhf-cross
-            - libssl-dev
+            - libssl-dev:armhf
     - env:
       - NAME=telegram-bot-template
       - TARGET=x86_64-unknown-linux-gnu
