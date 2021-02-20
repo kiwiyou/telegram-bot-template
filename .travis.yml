@@ -1,0 +1,52 @@
+os:
+  - linux
+language: rust
+rust:
+  - stable
+cache: 
+  - apt
+matrix:
+  include:
+    - env:
+      - NAME=telegram-bot-template
+      - TARGET=armv7-unknown-linux-gnueabihf
+      - LINKER=arm-linux-gnueabihf-gcc
+      - PACKAGE=$NAME-rpi3.tar.gz
+      addons:
+        apt:
+          packages:
+            - gcc-arm-linux-gnueabihf
+            - libc6-armhf-cross
+            - libc6-dev-armhf-cross
+    - env:
+      - NAME=telegram-bot-template
+      - TARGET=x86_64-unknown-linux-gnu
+      - PACKAGE=$NAME-x86_64.tar.gz
+
+install:
+  - export PATH="$PATH:$HOME/.cargo/bin"
+  - rustup target add $TARGET || true
+  - |
+    if [ -n "$LINKER" ]; then
+      mkdir -p ~/.cargo
+      echo >> ~/.cargo/config
+      echo "[target.$TARGET]" >> ~/.cargo/config
+      echo "linker = \"$LINKER\"" >> ~/.cargo/config
+    fi
+script:
+  - |
+    if [ $TARGET = "x86_64-unknown-linux-gnu" ]; then
+      cargo test
+    fi
+  - cargo build --target $TARGET --verbose --release
+
+before_deploy:
+  - tar -czf $PACKAGE -C target/$TARGET/release/ $NAME
+
+deploy:
+  provider: releases
+  api_key:
+    secure: lhxC+1R05eoBmcOO1/Of38+gM38K0ldwCmhsxMddWhg9VmYTZYceD/t6sh9V8r6OS5ocaObeVnHakW/sDYin49wE+bKkFYksfVCPuWVjvYunFBhLxY0lNXoICZjnengwMTtKfHnoUXe5/j5pPKh/yDa3W89jHiIusVq+TBO9LC9f9K2qaYmpW7yElRhtLhuX8ng768rmLT+5UVsDB++srArshc9+p/qlEGupA0dWwOKGsq297rWiFOhyHKXrmxJx5wK3HTg+Z97pTTck4SADU0Ky5LKlfqpLGt4IpQQSSAUkC7ODm/N9id4POAvNlqniT+hyIFWDvrFd9gr72+7RzCgde11UjyM4he1fRFhGDJN+6x3bD6iUXRvt6fyxawWZ1kBw4odakYEzkLLfY1nmaejVh1J0kNwgVjzje5BTxBE21KwmhBH6QTJImkilALH6XqN8kZfF/mdMR69WFpJUzWr3uFkodwfnB/r31pE/Kz66L+6YXnB8GpshN+lBIvuuwl6FO9nZtvbQydgyk9sozn/WmCqQwkEpNnPjxtrovoJmncPJwMTmUhLP9qfxTTtgoSG529nGpoHRs5qDM6Bs8x2RVlxMLoMIGPPq1hckWrDefXeN7VExnShT/EZAIW3XSUX14lahNoqYpDzJfzl2LTgl+KfRajR9UXeqL3skC2s=
+  file: ${PACKAGE}
+  skip_cleanup: true
+  draft: true
