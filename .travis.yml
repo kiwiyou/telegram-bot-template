@@ -24,8 +24,8 @@ matrix:
         - |-
           sudo apt-get -yq install \
             crossbuild-essential-armhf \
-            libc6:armhf
-            libc6-dev:armhf
+            libc6:armhf \
+            libc6-dev:armhf \
             libssl-dev:armhf
     - env:
       - NAME=telegram-bot-template
