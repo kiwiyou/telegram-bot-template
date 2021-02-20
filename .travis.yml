@@ -13,8 +13,9 @@ matrix:
       - TARGET=armv7-unknown-linux-gnueabihf
       - LINKER=arm-linux-gnueabihf-gcc
       - PACKAGE=$NAME-rpi3.tar.gz
-      - CC=arm-linux-gnueabihf-gcc
-      - SETARCH="setarch linux32 --verbose --32bit"
+      - PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig
+      - OPENSSL_LIB_DIR=/usr/lib/arm-linux-gnueabihf
+      - OPENSSL_INCLUDE_DIR=/usr/include/openssl
       before_install:
         - sudo dpkg --add-architecture armhf
         - echo "deb http://ports.ubuntu.com/ubuntu-ports xenial main" | sudo tee -a /etc/apt/sources.list
@@ -24,8 +25,7 @@ matrix:
             crossbuild-essential-armhf \
             libc6:armhf \
             libc6-dev:armhf \
-            libssl-dev:armhf \
-            pkg-config:armhf
+            libssl-dev:armhf
     - env:
       - NAME=telegram-bot-template
       - TARGET=x86_64-unknown-linux-gnu
