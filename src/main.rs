@@ -1,29 +1,29 @@
-use std::{env, sync::Arc};
+use std::env;
 
-use anyhow::Context;
-
-mod text;
+use sentry::IntoDsn;
+use tbot::{contexts::methods::ChatMethods, types::chat::Action, util::ChatActionLoop};
 
 fn main() {
     dotenv::dotenv().ok();
     init_logger();
     let sentry_dsn = env::var("SENTRY_DSN").unwrap();
-    let _guard = sentry::init(sentry_dsn);
+    let _guard = sentry::init(sentry::ClientOptions {
+        dsn: sentry_dsn.into_dsn().unwrap(),
+        release: sentry::release_name!(),
+        ..Default::default()
+    });
     let token = env::var("BOT_TOKEN").unwrap();
     let mut bot = tbot::Bot::new(token.clone()).event_loop();
 
-    let text_handler = Arc::new(text::Handler::new());
+    let mut rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(bot.fetch_username()).unwrap();
 
-    bot.text(move |ctx| {
-        let text_handler = text_handler.clone();
-        async move {
-            if let Err(error) = text_handler
-                .handle(ctx.clone())
-                .await
-                .with_context(|| format!("Error in text: {:?}", *ctx))
-            {
-                sentry_anyhow::capture_anyhow(&error);
-            }
+    bot.command("start", |text| async move {
+        let action = text.send_chat_action_in_loop(Action::Typing);
+        let reply = text.send_message_in_reply("Hello").call();
+        tokio::select! {
+            _ = action => {}
+            _ = reply => {}
         }
     });
 
@@ -37,7 +37,6 @@ fn main() {
         .http()
         .start();
 
-    let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(webhook).unwrap();
 }
 

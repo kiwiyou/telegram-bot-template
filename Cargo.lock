@@ -221,12 +221,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fst"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d79238883cf0307100b90aba4a755d8051a3182305dfe7f649a1e9dc0517006f"
-
-[[package]]
 name = "fuchsia-zircon"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1352,11 +1346,10 @@ dependencies = [
  "anyhow",
  "dotenv",
  "env_logger",
- "fst",
  "sentry",
  "sentry-anyhow",
  "tbot",
- "tokio 1.2.0",
+ "tokio 0.2.25",
 ]
 
 [[package]]
@@ -1449,8 +1442,10 @@ dependencies = [
  "lazy_static",
  "memchr",
  "mio 0.6.23",
+ "num_cpus",
  "pin-project-lite 0.1.11",
  "slab",
+ "tokio-macros",
 ]
 
 [[package]]
@@ -1466,14 +1461,13 @@ dependencies = [
  "mio 0.7.8",
  "num_cpus",
  "pin-project-lite 0.2.4",
- "tokio-macros",
 ]
 
 [[package]]
 name = "tokio-macros"
-version = "1.1.0"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "caf7b11a536f46a809a8a9f0bb4237020f70ecbf115b842360afb127ea2fda57"
+checksum = "e44da00bfc73a25f814cd8d7e57a68a5c31b74b3152a0a1d1f590c97ed06265a"
 dependencies = [
  "proc-macro2",
  "quote",
