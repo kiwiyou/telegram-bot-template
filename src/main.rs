@@ -1,25 +1,24 @@
-use std::env;
-
+use command::Command;
 use frankenstein::{Api, ChatId, Message, SendMessageParams, TelegramApi, Update};
 use log::{debug, error};
+use settings::Settings;
 use tiny_http::{Method, Response, Server};
 
+mod command;
 mod error;
+mod settings;
 use error::TelegramError;
 
 fn main() {
-    pretty_env_logger::init();
+    let settings = Settings::new().expect("error in settings");
+    pretty_env_logger::formatted_timed_builder()
+        .filter_level(settings.log.level)
+        .init();
 
-    let token = env::var("BOT_TOKEN").expect("BOT_TOKEN is not present");
-    let api = Api::new(&token);
+    let api = Api::new(&settings.bot.token);
 
-    let port: u16 = env::var("PORT")
-        .map(|port| port.parse().expect("PORT format is invalid"))
-        .unwrap_or(8090);
-
-    let bind_addr = env::var("BIND_ADDR").unwrap_or("0.0.0.0".into());
-
-    let server = Server::http((bind_addr, port)).expect("cannot start webhook server");
+    let server = Server::http((settings.server.bind_address, settings.server.port))
+        .expect("cannot start webhook server");
 
     for mut request in server.incoming_requests() {
         if *request.method() == Method::Post {
@@ -41,19 +40,41 @@ fn main() {
 }
 
 fn on_update(api: &Api, update: Update) -> eyre::Result<()> {
-    if let Some(message) = update.message() {
+    if let Some(message) = &update.message {
         on_message(api, message)?;
     }
     Ok(())
 }
 
-fn on_message(api: &Api, message: Message) -> eyre::Result<()> {
+fn on_message(api: &Api, message: &Message) -> eyre::Result<()> {
     debug!(
         "message from chat #{} and user #{:?}",
-        message.chat().id(),
-        message.from().map(|u| u.id())
+        message.chat.id,
+        message.from().map(|u| u.id)
     );
-    let message = SendMessageParams::new(ChatId::Integer(message.chat().id()), "Hello!".into());
-    api.send_message(&message).map_err(TelegramError)?;
+    if let Some(text) = message.text.as_ref().or_else(|| message.caption.as_ref()) {
+        {
+            let prev_len = text.len();
+            let maybe_command = text.trim_start_matches('/');
+            if maybe_command.len() < prev_len {
+                return on_command(api, message, Command::new(maybe_command));
+            }
+        }
+        let mut send = SendMessageParams::new(ChatId::Integer(message.chat.id), text.clone());
+        send.set_reply_to_message_id(Some(message.message_id));
+        api.send_message(&send).map_err(TelegramError)?;
+    }
+    Ok(())
+}
+
+fn on_command(api: &Api, message: &Message, command: Command) -> eyre::Result<()> {
+    if command.label == "start" {
+        let mut send = SendMessageParams::new(
+            ChatId::Integer(message.chat.id),
+            "This is an example echo bot.".into(),
+        );
+        send.set_reply_to_message_id(Some(message.message_id));
+        api.send_message(&send).map_err(TelegramError)?;
+    }
     Ok(())
 }

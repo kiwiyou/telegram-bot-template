@@ -1,0 +1,9 @@
+[server]
+port = 8090
+bind_address = "127.0.0.1"
+
+[log]
+level = "info"
+
+# [bot]
+# token = "<your telegram token here>"
